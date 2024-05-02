@@ -1,0 +1,35 @@
+﻿@using BlazorTest.Domain.Contracts.WebAppContracts;
+
+@page "/people"
+@inject IPeopleRepository _peopleRepository;
+
+<h3>People</h3>
+
+ <table class="table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>State</th>
+                <th>City</th>
+                <th>Email</th>
+                <th>Adress</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+@*        @foreach (var forecast in forecasts)
+        {
+                    <tr>
+                        <td>@forecast.Date.ToShortDateString()</td>
+                        <td>@forecast.TemperatureC</td>
+                        <td>@forecast.TemperatureF</td>
+                        <td>@forecast.Summary</td>
+                    </tr>
+        }*@
+        </tbody>
+    </table>
+
+@code {
+
+}

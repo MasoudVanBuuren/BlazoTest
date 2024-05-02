@@ -1,0 +1,123 @@
+﻿@using BlazorAppServer.Model;
+@using BlazorTest.Domain.Contracts.WebAppContracts;
+@using BlazorTest.Domain.Entities.Location;
+
+@inject IPeopleRepository _personRepository;
+@inject IStatesRepository _stateRepository;
+@inject ICitiesRepository _citiesRepository;
+@inject NavigationManager NavigationManager;
+
+@page "/updateperson/{Id}"
+
+<h3>UpdatePerson</h3>
+
+<EditForm Model="Model" OnValidSubmit="UpdateSelectedPerson" FormName="Form1">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <div class="form-group">
+        <label>First Name</label>
+        <InputText type="text" class="form-control" @bind-Value="Model.FirstName" placeholder="Enter Your First Name" />
+        <ValidationMessage For="() => Model.FirstName" />
+    </div>
+
+    <div class="form-group">
+        <label>Last Name</label>
+        <InputText type="text" class="form-control" @bind-Value="Model.LastName" placeholder="Enter Your Last Name" />
+        <ValidationMessage For="() => Model.LastName" />
+    </div>
+
+    <div class="form-group">
+        <label>Email</label>
+        <InputText type="text" class="form-control" @bind-Value="Model.Email" placeholder="Enter Your Email" />
+        <ValidationMessage For="() => Model.Email" />
+    </div>
+
+    <div class="form-group">
+        <label>Adress</label>
+        <InputText type="text" class="form-control" @bind-Value="Model.Address" placeholder="Enter Your Adress" />
+        <ValidationMessage For="() => Model.Address" />
+    </div>
+
+    <div class="form-group">
+        <label>Phone Number</label>
+        <InputText type="text" class="form-control" @bind-Value="Model.PhoneNumber" placeholder="Enter Your Phone Number" />
+        <ValidationMessage For="() => Model.PhoneNumber" />
+    </div>
+
+    <div class="form-group">
+        <label>State</label>
+        <InputSelect class="form-control select2" Value="Model.StateId" ValueChanged="@((int value) => StateUpdate(value ))" ValueExpression="@(() => Model.StateId)">
+            @foreach (var item in Model.States)
+            {
+                <option value="@item.Id">@item.Name </option>
+            }
+        </InputSelect>
+    </div>
+
+    <div class="form-group">
+        <label>City</label>
+        <InputSelect class="form-control select2" @bind-Value="Model.CityId">
+            @foreach (var item in Model.Cities)
+            {
+                <option value="@item.Id">@item.Name </option>
+            }
+        </InputSelect>
+    </div>
+    <button type="submit" class="btn btn-primary rounded-pill">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public string? Id { get; set; }
+
+    private UpdatePersonModel Model { get; set; } = new UpdatePersonModel();
+
+    protected override void OnInitialized()
+    {
+        var person = _personRepository.FindById(int.Parse(Id));
+
+        if(person != null)
+        {
+            Model.FirstName = person.FirstName;
+            Model.LastName = person.LastName;
+            Model.Email = person.Email;
+            Model.Address = person.Address;
+            Model.PhoneNumber = person.PhoneNumber;
+            Model.CityId = person.CityId;
+            Model.StateId = person.City.StateId;
+        }
+
+        Model.States = _stateRepository.GetAll();
+        Model.Cities = _citiesRepository.FindFyStateId(Model.StateId);
+
+        base.OnInitialized();
+    }
+
+    private void UpdateSelectedPerson()
+    {
+        var person = _personRepository.FindById(int.Parse(Id));
+
+        if (person != null)
+        {
+            person.FirstName = Model.FirstName;
+            person.LastName = Model.LastName;
+            person.Email = Model.Email;
+            person.Address = Model.Address;
+            person.PhoneNumber = Model.PhoneNumber;
+            person.City = _citiesRepository.FindById(Model.StateId);
+            _personRepository.Update(int.Parse(Id), person);
+
+            NavigationManager.NavigateTo("/people");
+        }
+        else
+        {
+
+        }
+    }
+
+    public void StateUpdate(int value)
+    {
+        Model.StateId = value;
+        Model.Cities = _citiesRepository.FindFyStateId(value);
+    }
+}

@@ -1,0 +1,101 @@
+﻿@using BlazorTest.Domain.Contracts.WebAppContracts;
+@using BlazorTest.Domain.Entities.People
+
+@inject IPeopleRepository _peopleRepository;
+@inject NavigationManager NavigationManager;
+
+@page "/people"
+
+<h3>People</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>First Name</th>
+            <th>Last Name</th>
+            <th>State</th>
+            <th>City</th>
+            <th>Email</th>
+            <th>Adress</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in People)
+        {
+            <tr>
+                <td>@item.FirstName</td>
+                <td>@item.LastName</td>
+                <td>@item.City.State.Name</td>
+                <td>@item.City.Name</td>
+                <td>@item.Email</td>
+                <td>@item.Address</td>
+                <td>
+                    <button class="btn btn-primary rounded-pill" @onclick="(e) => NavigateToUpdatePerson(item.Id)" >Update</button>
+                        |
+                    <button class="btn btn-danger rounded-pill" @onclick="(e) => ShowDeleteModal(item.Id)">Delete</button>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a href="/people/addperson" class="btn btn-primary rounded-pill">Add New Person</a>
+
+@if (ShowDeletePersonConfirm)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CloseDeleteModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this person?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="DeletePerson">Delete</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                        </div>
+            </div>
+        </div>
+    </div>
+}
+
+
+@code {
+    private bool ShowDeletePersonConfirm { get; set; }
+    private int PersonIdToDelete { get; set; }
+
+    public IQueryable<Person> People { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.People = _peopleRepository.GetAll();
+        base.OnInitialized();
+    }
+
+    private void NavigateToUpdatePerson(int personId)
+    {
+        NavigationManager.NavigateTo($"/updateperson/{personId}");
+    }
+    private void ShowDeleteModal(int personId)
+    {
+        PersonIdToDelete = personId;
+        ShowDeletePersonConfirm = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        ShowDeletePersonConfirm = false;
+    }
+
+    private void DeletePerson()
+    {
+        _peopleRepository.DeleteById(PersonIdToDelete);
+        ShowDeletePersonConfirm = false;
+    }
+}
