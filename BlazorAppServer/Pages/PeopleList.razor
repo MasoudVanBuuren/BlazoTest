@@ -74,9 +74,32 @@
     </div>
 }
 
+@if (ShowErrorComponents)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Error:</h5>
+                    <button type="button" class="close" @onclick="CloseError" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Please Creat City And Try Again</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="CloseError">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
-    private bool ShowDeletePersonConfirm { get; set; }
+    private bool ShowDeletePersonConfirm { get; set; } = false;
+    private bool ShowErrorComponents { get; set; } = false;
     private int PersonIdToDelete { get; set; }
 
     public IQueryable<Person> People { get; set; }
@@ -107,5 +130,10 @@
     {
         _peopleRepository.DeleteById(PersonIdToDelete);
         ShowDeletePersonConfirm = false;
+    }
+
+    private void CloseError()
+    {
+        ShowErrorComponents = false;
     }
 }

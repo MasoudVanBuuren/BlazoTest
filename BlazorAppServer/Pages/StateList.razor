@@ -46,7 +46,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Confirm Delete</h5>
+                        <h5 class="modal-title">Add New State</h5>
                         <button type="button" class="close" @onclick="CloseAddModal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -77,7 +77,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Confirm Delete</h5>
+                    <h5 class="modal-title">Update State</h5>
                     <button type="button" class="close" @onclick="CloseUpdateModal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -139,6 +139,7 @@
 
     private void ShowAddModal()
     {
+        Model.Name = string.Empty;
         ShowAddComponent = true;
     }
 
