@@ -2,6 +2,7 @@
 @using BlazorTest.Domain.Entities.People
 
 @inject IPeopleRepository _peopleRepository;
+@inject ICitiesRepository _citiesRepository;
 @inject NavigationManager NavigationManager;
 
 @page "/people"
@@ -49,7 +50,7 @@
     </tbody>
 </table>
 
-<a href="/people/addperson" class="btn btn-primary rounded-pill">Add New Person</a>
+<button class="btn btn-primary rounded-pill" @onclick="NavigateToAddPerson">Add New Person</button>
 
 @if (ShowDeletePersonConfirm)
 {
@@ -113,6 +114,18 @@
     private void NavigateToUpdatePerson(int personId)
     {
         NavigationManager.NavigateTo($"/updateperson/{personId}");
+    }
+
+    private void NavigateToAddPerson()
+    {
+        if (_citiesRepository.GetAll().Any())
+        {
+            NavigationManager.NavigateTo($"/addperson");
+        }
+        else
+        {
+            ShowErrorComponents = true;
+        }
     }
 
     private void ShowDeleteModal(int personId)

@@ -208,8 +208,16 @@
 
     private void ShowAddModal()
     {
-        Model.Name = string.Empty;
-        ShowAddComponent = true;
+        if (_stateRepository.GetAll().Any())
+        {
+            Model.Name = string.Empty;
+            Model.StateId = Model.States.First().Id;
+            ShowAddComponent = true;
+        }
+        else
+        {
+            ShowErrorComponents = true;
+        }
     }
 
     private void CloseAddModal()
@@ -219,20 +227,13 @@
 
     private void AddNewCity()
     {
-        if (_stateRepository.GetAll().Any())
-        {
-            _citiesRepository.Add(new City
-                {
-                    Name = Model.Name,
-                    State = _stateRepository.FindById(Model.StateId),
-                    StateId = Model.StateId,
-                });
-            ShowAddComponent = false;
-        }
-        else
-        {
-            ShowErrorComponents = true;
-        }
+        _citiesRepository.Add(new City
+            {
+                Name = Model.Name,
+                State = _stateRepository.FindById(Model.StateId),
+                StateId = Model.StateId,
+            });
+        ShowAddComponent = false;
     }
 
     private void ShowDeleteModal(int cityId)
