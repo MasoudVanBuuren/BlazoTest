@@ -1,0 +1,240 @@
+﻿@using BlazorAppServer.Model;
+@using BlazorTest.Domain.Contracts.WebAppContracts;
+@using BlazorTest.Domain.Entities.Location;
+
+@inject IStatesRepository _stateRepository;
+@inject ICitiesRepository _citiesRepository;
+
+@page "/cities"
+
+<h3>Cities</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>State</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.Cities.Any())
+        {
+            @foreach (var item in Model.Cities)
+            {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td>@item.State.Name</td>
+                            <td>
+                                <button class="btn btn-primary rounded-pill" @onclick="(e) => ShowUpdateModal(item.Id)">Update</button>
+                                |
+                                <button class="btn btn-danger rounded-pill" @onclick="(e) => ShowDeleteModal(item.Id)">Delete</button>
+                            </td>
+                        </tr>
+            }
+        }
+        else
+        {
+                 <tr>
+                    <td colspan="2">States Not Found</td>
+                </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary rounded-pill" @onclick="ShowAddModal">Add New State</button>
+
+@if (ShowAddComponent)
+{
+                <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title">Confirm Delete</h5>
+                                <button type="button" class="close" @onclick="CloseAddModal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                            </div>
+                            <div class="modal-body">
+                            <EditForm Model="Model" OnValidSubmit="AddNewCity">
+                                <DataAnnotationsValidator />
+                                <ValidationSummary />
+                                <div class="form-group">
+                            <label>First Name</label>
+                            <InputText type="text" class="form-control" @bind-Value="Model.Name" placeholder="Enter Your City Name" />
+                            <ValidationMessage For="() => Model.Name" />
+                            </div>
+                            <div class="form-group">
+                                <label>State</label>
+                                <InputSelect class="form-control select2" @bind-Value=Model.StateId>
+                                @foreach (var item in Model.States)
+                                {
+                                            <option value="@item.Id">@item.Name </option>
+                                }
+                                </InputSelect>
+                            </div>
+                            </EditForm>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-primary" @onclick="AddNewCity">Add</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseAddModal">Cancel</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+}
+
+@if (ShowUpdateComponent)
+{
+            <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Delete</h5>
+                            <button type="button" class="close" @onclick="CloseUpdateModal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                        <EditForm Model="Model" OnValidSubmit="UpdateCity">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <InputText type="text" class="form-control" @bind-Value="Model.Name" placeholder="Enter Your City Name" />
+                            <ValidationMessage For="() => Model.Name" />
+                        </div>
+                        <div class="form-group">
+                            <label>State</label>
+                            <InputSelect class="form-control select2" @bind-Value=Model.StateId>
+                                @foreach (var item in Model.States)
+                                {
+                                    <option value="@item.Id">@item.Name </option>
+                                }
+                            </InputSelect>
+                        </div>
+                        </EditForm>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-primary" @onclick="UpdateCity">Update</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseUpdateModal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+}
+
+@if (ShowDeleteComponent)
+{
+            <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+                <div class="modal-dialog" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Confirm Delete</h5>
+                            <button type="button" class="close" @onclick="CloseDeleteModal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <p>Are you sure you want to delete this state?</p>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+                            <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+}
+
+@code {
+    private CityViewModel Model { get; set; } = new CityViewModel();
+    private bool ShowAddComponent { get; set; }
+    private bool ShowUpdateComponent { get; set; }
+    private bool ShowDeleteComponent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        Model.States = _stateRepository.GetAll();
+        Model.Cities = _citiesRepository.GetAll();
+
+        base.OnInitialized();
+    }
+
+    private void ShowAddModal()
+    {
+        ShowAddComponent = true;
+    }
+
+    private void CloseAddModal()
+    {
+        ShowAddComponent = false;
+    }
+
+    private void AddNewCity()
+    {
+        _citiesRepository.Add(new City
+            {
+                Name = Model.Name,
+                State = _stateRepository.FindById(Model.StateId),
+                StateId = Model.StateId,
+            });
+        ShowAddComponent = false;
+    }
+
+    private void ShowDeleteModal(int cityId)
+    {
+        Model.CityId = cityId;
+        ShowDeleteComponent = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        ShowDeleteComponent = false;
+    }
+
+    private void ConfirmDelete()
+    {
+        var city = _citiesRepository.FindById(Model.CityId);
+        if (city != null)
+        {
+            _citiesRepository.DeleteById(Model.CityId);
+        }
+        ShowDeleteComponent = false;
+    }
+
+    private void ShowUpdateModal(int cityId)
+    {
+        var state = _citiesRepository.FindById(cityId);
+        if (state != null)
+        {
+            Model.Name = state.Name;
+            Model.CityId = state.Id;
+            Model.StateId = state.Id;
+            ShowUpdateComponent = true;
+        }
+    }
+
+    private void CloseUpdateModal()
+    {
+        ShowUpdateComponent = false;
+    }
+
+    private void UpdateCity()
+    {
+        var city = _citiesRepository.FindById(Model.StateId);
+
+        if (city != null)
+        {
+            city.Name = Model.Name;
+            city.State = _stateRepository.FindById(Model.StateId);
+            city.StateId = Model.StateId;
+
+            _citiesRepository.Update(Model.CityId, city);
+            ShowUpdateComponent = false;
+        }
+        else
+        {
+            ShowUpdateComponent = false;
+        }
+    }
+}

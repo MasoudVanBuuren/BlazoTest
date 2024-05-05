@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace BlazorAppServer.Model
 {
-    public class UpdatePersonModel
+    public class PersonViewModel
     {
         [Required]
         [MaxLength(100, ErrorMessage = "Name Is Too Long, Cannot be longer than 100 characters.")]

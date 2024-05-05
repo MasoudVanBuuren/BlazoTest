@@ -21,20 +21,29 @@
         </tr>
     </thead>
     <tbody>
-        @foreach (var item in People)
+        @if (People.Any())
+        {
+            @foreach (var item in People)
+            {
+                <tr>
+                    <td>@item.FirstName</td>
+                    <td>@item.LastName</td>
+                    <td>@item.City.State.Name</td>
+                    <td>@item.City.Name</td>
+                    <td>@item.Email</td>
+                    <td>@item.Address</td>
+                    <td>
+                        <button class="btn btn-primary rounded-pill" @onclick="(e) => NavigateToUpdatePerson(item.Id)" >Update</button>
+                        |
+                        <button class="btn btn-danger rounded-pill" @onclick="(e) => ShowDeleteModal(item.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
         {
             <tr>
-                <td>@item.FirstName</td>
-                <td>@item.LastName</td>
-                <td>@item.City.State.Name</td>
-                <td>@item.City.Name</td>
-                <td>@item.Email</td>
-                <td>@item.Address</td>
-                <td>
-                    <button class="btn btn-primary rounded-pill" @onclick="(e) => NavigateToUpdatePerson(item.Id)" >Update</button>
-                        |
-                    <button class="btn btn-danger rounded-pill" @onclick="(e) => ShowDeleteModal(item.Id)">Delete</button>
-                </td>
+                <td colspan="2">People Not Found</td>
             </tr>
         }
     </tbody>
@@ -82,6 +91,7 @@
     {
         NavigationManager.NavigateTo($"/updateperson/{personId}");
     }
+
     private void ShowDeleteModal(int personId)
     {
         PersonIdToDelete = personId;

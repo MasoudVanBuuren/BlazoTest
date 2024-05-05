@@ -1,0 +1,24 @@
+﻿@using BlazorAppServer.Model;
+@using BlazorTest.Domain.Contracts.WebAppContracts;
+@using BlazorTest.Domain.Entities.Location;
+
+@inject IStatesRepository _stateRepository;
+
+<EditForm Model="Model">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+</EditForm>
+
+<h3>StateList</h3>
+
+@code {
+    [Parameter]
+    public StateViewModel? Model { get; set; } = new StateViewModel();
+
+    protected override void OnInitialized()
+    {
+        this.Model.States = _stateRepository.GetAll();
+        base.OnInitialized();
+    }
+}

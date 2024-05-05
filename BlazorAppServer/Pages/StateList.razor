@@ -1,0 +1,211 @@
+﻿@using BlazorAppServer.Model;
+@using BlazorTest.Domain.Contracts.WebAppContracts;
+@using BlazorTest.Domain.Entities.Location;
+
+@inject IStatesRepository _stateRepository;
+
+@page "/states"
+
+<h3>States</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        @if (Model.States.Any())
+        {
+            @foreach (var item in Model.States)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>
+                        <button class="btn btn-primary rounded-pill" @onclick="(e) => ShowUpdateModal(item.Id)">Update</button>
+                        |
+                        <button class="btn btn-danger rounded-pill" @onclick="(e) => ShowDeleteModal(item.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        }
+        else
+        {
+            <tr>
+                <td colspan="2">States Not Found</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<button class="btn btn-primary rounded-pill" @onclick="ShowAddModal">Add New State</button>
+
+@if (ShowAddComponent)
+{
+        <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Confirm Delete</h5>
+                        <button type="button" class="close" @onclick="CloseAddModal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                 <EditForm Model="Model" OnValidSubmit="AddNewState">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                    <label>First Name</label>
+                    <InputText type="text" class="form-control" @bind-Value="Model.Name" placeholder="Enter Your State Name" />
+                    <ValidationMessage For="() => Model.Name" />
+                    </div>
+                 </EditForm>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" @onclick="AddNewState">Add</button>
+                        <button type="button" class="btn btn-secondary" @onclick="CloseAddModal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+}
+
+@if (ShowUpdateComponent)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CloseUpdateModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <EditForm Model="Model" OnValidSubmit="UpdateState">
+                        <DataAnnotationsValidator />
+                        <ValidationSummary />
+                        <div class="form-group">
+                            <label>First Name</label>
+                            <InputText type="text" class="form-control" @bind-Value="Model.Name" placeholder="Enter Your State Name" />
+                            <ValidationMessage For="() => Model.Name" />
+                        </div>
+                    </EditForm>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" @onclick="UpdateState">Update</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseUpdateModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowDeleteComponent)
+{
+    <div class="modal" tabindex="-1" role="dialog" style="display: block;">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirm Delete</h5>
+                    <button type="button" class="close" @onclick="CloseDeleteModal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Are you sure you want to delete this state?</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-danger" @onclick="ConfirmDelete">Delete</button>
+                    <button type="button" class="btn btn-secondary" @onclick="CloseDeleteModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private StateViewModel Model { get; set; } = new StateViewModel();
+    private bool ShowAddComponent { get; set; }
+    private bool ShowUpdateComponent { get; set; }
+    private bool ShowDeleteComponent { get; set; }
+
+    protected override void OnInitialized()
+    {
+        this.Model.States = _stateRepository.GetAll();
+        base.OnInitialized();
+    }
+
+    private void ShowAddModal()
+    {
+        ShowAddComponent = true;
+    }
+
+    private void CloseAddModal()
+    {
+        ShowAddComponent = false;
+    }
+
+    private void AddNewState()
+    {
+        _stateRepository.Add(new BlazorTest.Domain.Entities.Location.State
+            {
+                Name = Model.Name
+            });
+        ShowAddComponent = false;
+    }
+
+    private void ShowDeleteModal(int stateId)
+    {
+        Model.StateId = stateId;
+        ShowDeleteComponent = true;
+    }
+
+    private void CloseDeleteModal()
+    {
+        ShowDeleteComponent = false;
+    }
+
+    private void ConfirmDelete()
+    {
+        var state = _stateRepository.FindById(Model.StateId);
+        if(state != null)
+        {
+            _stateRepository.DeleteById(Model.StateId);
+        }
+        ShowDeleteComponent = false;
+    }
+
+    private void ShowUpdateModal(int stateId)
+    {
+        var state = _stateRepository.FindById(stateId);
+        if(state != null)
+        {
+            Model.Name = state.Name;
+            Model.StateId = state.Id;
+            ShowUpdateComponent = true;
+        }
+    }
+
+    private void CloseUpdateModal()
+    {
+        ShowUpdateComponent = false;
+    }
+
+    private void UpdateState()
+    {
+        var state = _stateRepository.FindById(Model.StateId);
+
+        if (state != null)
+        {
+            state.Name = Model.Name;
+            _stateRepository.Update(Model.StateId, state);
+            ShowUpdateComponent = false;
+        }
+        else
+        {
+            ShowUpdateComponent = false;
+        }
+    }
+}
