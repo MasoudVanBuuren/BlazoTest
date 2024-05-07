@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorTest.InfraStructure.DataAccess.Migrations
 {
     [DbContext(typeof(BlazorTestDbContext))]
-    [Migration("20240430074409_init")]
+    [Migration("20240507115022_init")]
     partial class init
     {
         /// <inheritdoc />

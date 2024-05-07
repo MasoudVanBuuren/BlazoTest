@@ -12,8 +12,18 @@ namespace BlazorTest.InfraStructure.DataAccess.Common
     {
         public BlazorTestDbContext CreateDbContext(string[] args)
         {
+            //var builder = new DbContextOptionsBuilder<BlazorTestDbContext>();
+            //builder.UseSqlServer("Data Source=.;Initial Catalog=BlazorTestDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+
+            //var result = new BlazorTestDbContext(builder.Options);
+            //var pendingMigrations = result.Database.GetPendingMigrations();
+            //if (pendingMigrations.Any())
+            //    result.Database.Migrate();
+
+            //return result;
+
             var builder = new DbContextOptionsBuilder<BlazorTestDbContext>();
-            builder.UseSqlServer("Data Source=(localdb)\\ProjectModels;Initial Catalog=BlazorTestDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
+            builder.UseSqlServer("Data Source=(localdb)\\MSSQLLocalDB;Initial Catalog=BlazorTestDb;Integrated Security=True;Connect Timeout=30;Encrypt=False;TrustServerCertificate=False;ApplicationIntent=ReadWrite;MultiSubnetFailover=False");
 
             return new BlazorTestDbContext(builder.Options);
         }
